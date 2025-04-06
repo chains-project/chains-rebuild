@@ -16,6 +16,7 @@ var AllJarStabilizers []Stabilizer = []Stabilizer{
 	StableJARBuildMetadata,
 	StableJAROrderOfAttributeValues,
 	StableGitProperties,
+	StablePomProperties,
 }
 
 var StableJARBuildMetadata = ZipEntryStabilizer{
