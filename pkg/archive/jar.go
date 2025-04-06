@@ -6,6 +6,7 @@ package archive
 import (
 	"bytes"
 	"io"
+	"path"
 	"slices"
 	"sort"
 	"strings"
@@ -218,6 +219,22 @@ var StableGitProperties = ZipArchiveStabilizer{
 					zf.SetContent([]byte(""))
 				}
 			}
+		}
+	},
+}
+
+var StablePomProperties = ZipEntryStabilizer{
+	Name: "jar-pom-properties",
+	Func: func(zf *MutableZipFile) {
+		// pom.properties files contain attributes set by Maven Archiver.
+		// Source: https://maven.apache.org/shared/maven-archiver/#pom-properties-content
+		// They contain two unreproducible features:
+		// 1) The timestamp of generation is set to the time of build
+		// 2) The order of attributes "groupId", "artifactId", and "version" is not stable.
+		// It is created under META-INF/maven/${groupId}/${artifactId}/pom.properties so we delete that specifically.
+		// And not any pom.properties file in the jar (for example, ones under src/main/resources).
+		if strings.Contains(zf.Name, "META-INF/") && path.Base(zf.Name) == "pom.properties" {
+			zf.SetContent([]byte{})
 		}
 	},
 }
